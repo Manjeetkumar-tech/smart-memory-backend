@@ -19,12 +19,24 @@ public class LogController {
 
     @PostMapping
     public Log createLog(@RequestBody Log log) {
-        System.out.println("User ID: " + log.getUserId());
         return logService.saveLog(log);
     }
 
     @GetMapping
-    public List<Log> getAllLogs() {
-        return logService.getAllLogs();
+    public List<Log> getLogsByUser(@RequestParam(required = false) String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return logService.getAllLogs();  // Return all logs if no userId
+        }
+        return logService.getLogsByUserId(userId);  // Filter by userId if present
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteLog(@PathVariable Long id) {
+        logService.deleteLogById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Log updateLog(@PathVariable Long id, @RequestBody Log updatedLog) {
+        return logService.updateLog(id, updatedLog);
     }
 }
