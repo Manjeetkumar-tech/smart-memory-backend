@@ -33,9 +33,10 @@ public class LogService {
 
     public Log updateLog(Long id, Log updatedLog) {
         return logRepository.findById(id).map(log -> {
-            log.setContent(updatedLog.getContent());
-            log.setMood(updatedLog.getMood());
-            log.setCategory(updatedLog.getCategory());
+            System.out.println("Updating log id=" + id + " with mood=" + updatedLog.getMood() + " category=" + updatedLog.getCategory());
+        log.setContent(updatedLog.getContent());
+        log.setMood(updatedLog.getMood());
+        log.setCategory(updatedLog.getCategory());
             return logRepository.save(log);
         }).orElseThrow(() -> new RuntimeException("Log not found with id " + id));
     }

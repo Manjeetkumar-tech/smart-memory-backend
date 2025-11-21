@@ -18,8 +18,10 @@ public class Log {
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
+    @Column(nullable = true)
     private String mood;
 
+    @Column(nullable = true)
     private String category;
 
     // Getters & Setters
