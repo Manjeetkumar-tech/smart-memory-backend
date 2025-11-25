@@ -2,6 +2,7 @@ package com.example.smart_memory_backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class Item {
@@ -15,6 +16,10 @@ public class Item {
     private Double latitude;
     private Double longitude;
     private LocalDate date;
+    
+    private String userId; // Who created this item
+    private String claimedBy; // Who claimed this item
+    private LocalDateTime claimedAt; // When it was claimed
     
     @Enumerated(EnumType.STRING)
     private ItemType type; // LOST or FOUND
@@ -69,4 +74,13 @@ public class Item {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
+    public String getClaimedBy() { return claimedBy; }
+    public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
+
+    public LocalDateTime getClaimedAt() { return claimedAt; }
+    public void setClaimedAt(LocalDateTime claimedAt) { this.claimedAt = claimedAt; }
 }
