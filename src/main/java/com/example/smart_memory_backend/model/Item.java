@@ -3,6 +3,8 @@ package com.example.smart_memory_backend.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 public class Item {
@@ -28,7 +30,9 @@ public class Item {
     private ItemStatus status; // OPEN, CLAIMED, RESOLVED
 
     private String contactInfo;
-    private String imageUrl;
+    
+    @ElementCollection
+    private List<String> imageUrls = new ArrayList<>();
 
     public Item() {}
 
@@ -72,8 +76,8 @@ public class Item {
     public String getContactInfo() { return contactInfo; }
     public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }

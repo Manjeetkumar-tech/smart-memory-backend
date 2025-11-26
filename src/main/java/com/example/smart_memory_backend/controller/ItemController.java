@@ -45,6 +45,25 @@ public class ItemController {
         return itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
     }
 
+    @PutMapping("/{id}")
+    public Item updateItem(@PathVariable Long id, @RequestBody Item itemDetails) {
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Item not found"));
+        
+        item.setTitle(itemDetails.getTitle());
+        item.setDescription(itemDetails.getDescription());
+        item.setLocation(itemDetails.getLocation());
+        item.setLatitude(itemDetails.getLatitude());
+        item.setLongitude(itemDetails.getLongitude());
+        item.setDate(itemDetails.getDate());
+        item.setType(itemDetails.getType());
+        item.setContactInfo(itemDetails.getContactInfo());
+        item.setImageUrls(itemDetails.getImageUrls());
+        item.setStatus(itemDetails.getStatus());
+        
+        return itemRepository.save(item);
+    }
+
 
     @PutMapping("/{id}/claim")
     public Item claimItem(@PathVariable Long id, @RequestParam String userId) {
