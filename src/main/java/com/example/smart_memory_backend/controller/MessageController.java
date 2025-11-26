@@ -26,7 +26,7 @@ public class MessageController {
 
     @GetMapping("/user/{userId}")
     public List<Message> getMessagesByUser(@PathVariable String userId) {
-        return messageRepository.findByReceiverIdOrderByTimestampDesc(userId);
+        return messageRepository.findBySenderIdOrReceiverIdOrderByTimestampDesc(userId, userId);
     }
 
     @GetMapping("/user/{userId}/unread")
