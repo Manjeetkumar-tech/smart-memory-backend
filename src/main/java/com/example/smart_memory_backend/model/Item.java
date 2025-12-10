@@ -30,6 +30,7 @@ public class Item {
     private ItemStatus status; // OPEN, CLAIMED, RESOLVED
 
     private String contactInfo;
+    private String category; // Item category (ELECTRONICS, DOCUMENTS, etc.)
     
     @ElementCollection
     private List<String> imageUrls = new ArrayList<>();
@@ -87,4 +88,7 @@ public class Item {
 
     public LocalDateTime getClaimedAt() { return claimedAt; }
     public void setClaimedAt(LocalDateTime claimedAt) { this.claimedAt = claimedAt; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }
