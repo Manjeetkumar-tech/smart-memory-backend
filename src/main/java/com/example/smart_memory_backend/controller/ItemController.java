@@ -17,6 +17,14 @@ public class ItemController {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private com.example.smart_memory_backend.service.MatchingService matchingService;
+
+    @GetMapping("/{id}/matches")
+    public List<Item> getMatches(@PathVariable Long id) {
+        return matchingService.findMatches(id);
+    }
+
     @GetMapping
     public List<Item> getAllItems(
             @RequestParam(required = false) ItemType type,
