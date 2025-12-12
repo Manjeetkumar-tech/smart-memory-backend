@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: smart-memory-es
+    environment:
+      - node.name=smart-memory-es
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - smart-memory-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: smart-memory-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    networks:
+      - smart-memory-net
+    depends_on:
+      - elasticsearch
+
+volumes:
+  es_data:
+    driver: local
+
+networks:
+  smart-memory-net:
+    driver: bridge

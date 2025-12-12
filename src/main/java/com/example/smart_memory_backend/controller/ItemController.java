@@ -20,6 +20,9 @@ public class ItemController {
     @Autowired
     private com.example.smart_memory_backend.service.MatchingService matchingService;
 
+    @Autowired
+    private com.example.smart_memory_backend.service.SearchService searchService;
+
     @GetMapping("/{id}/matches")
     public List<Item> getMatches(@PathVariable Long id) {
         return matchingService.findMatches(id);
@@ -28,7 +31,27 @@ public class ItemController {
     @GetMapping
     public List<Item> getAllItems(
             @RequestParam(required = false) ItemType type,
-            @RequestParam(required = false) String userId) {
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String search) {
+        
+        if (search != null && !search.isEmpty()) {
+            // Use Elasticsearch for search
+            List<com.example.smart_memory_backend.model.ItemDocument> docs = searchService.searchItems(search);
+            // Convert back to Item objects (simplified for now, ideally return DTOs)
+            return docs.stream().map(doc -> {
+                Item item = new Item();
+                item.setId(doc.getId());
+                item.setTitle(doc.getTitle());
+                item.setDescription(doc.getDescription());
+                item.setCategory(doc.getCategory());
+                item.setLocation(doc.getLocation());
+                item.setDate(doc.getDate());
+                item.setStatus(com.example.smart_memory_backend.model.ItemStatus.valueOf(doc.getStatus()));
+                item.setType(com.example.smart_memory_backend.model.ItemType.valueOf(doc.getType()));
+                return item;
+            }).toList();
+        }
+
         if (userId != null && type != null) {
             return itemRepository.findAll().stream()
                 .filter(item -> item.getUserId().equals(userId) && item.getType() == type)
@@ -45,7 +68,9 @@ public class ItemController {
 
     @PostMapping
     public Item createItem(@RequestBody Item item) {
-        return itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
+        searchService.indexItem(savedItem); // Sync to ES
+        return savedItem;
     }
 
     @GetMapping("/{id}")
@@ -68,8 +93,11 @@ public class ItemController {
         item.setContactInfo(itemDetails.getContactInfo());
         item.setImageUrls(itemDetails.getImageUrls());
         item.setStatus(itemDetails.getStatus());
+        item.setCategory(itemDetails.getCategory());
         
-        return itemRepository.save(item);
+        Item updatedItem = itemRepository.save(item);
+        searchService.indexItem(updatedItem); // Sync to ES
+        return updatedItem;
     }
 
 
@@ -80,11 +108,26 @@ public class ItemController {
         item.setClaimedBy(userId);
         item.setClaimedAt(LocalDateTime.now());
         item.setStatus(ItemStatus.CLAIMED);
-        return itemRepository.save(item);
+        
+        Item updatedItem = itemRepository.save(item);
+        searchService.indexItem(updatedItem); // Sync to ES
+        return updatedItem;
+    }
+
+    @PutMapping("/{id}/resolve")
+    public Item resolveItem(@PathVariable Long id) {
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Item not found"));
+        item.setStatus(ItemStatus.RESOLVED);
+        
+        Item updatedItem = itemRepository.save(item);
+        searchService.indexItem(updatedItem); // Sync to ES
+        return updatedItem;
     }
 
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable Long id) {
         itemRepository.deleteById(id);
+        searchService.deleteItem(id); // Sync to ES
     }
 }

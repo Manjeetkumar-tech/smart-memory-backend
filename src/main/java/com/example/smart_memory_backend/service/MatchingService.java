@@ -18,11 +18,17 @@ public class MatchingService {
         Item sourceItem = itemRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Item not found"));
 
         // 1. Find candidates: Opposite Type + Same Category + Status OPEN
+        System.out.println("Finding matches for Item ID: " + itemId + ", Type: " + sourceItem.getType() + ", Category: " + sourceItem.getCategory());
         List<Item> candidates = itemRepository.findPotentialMatches(sourceItem.getType(), sourceItem.getCategory());
+        System.out.println("Found " + candidates.size() + " candidates from DB.");
 
         // 2. Filter by Keyword Overlap (Simple Logic)
         return candidates.stream()
-                .filter(candidate -> hasKeywordOverlap(sourceItem, candidate))
+                .filter(candidate -> {
+                    boolean match = hasKeywordOverlap(sourceItem, candidate);
+                    System.out.println("Candidate ID: " + candidate.getId() + " (" + candidate.getTitle() + ") - Match: " + match);
+                    return match;
+                })
                 .collect(Collectors.toList());
     }
 
