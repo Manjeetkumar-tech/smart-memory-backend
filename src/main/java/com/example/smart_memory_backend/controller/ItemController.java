@@ -125,6 +125,38 @@ public class ItemController {
         return updatedItem;
     }
 
+    @PutMapping("/{id}/unclaim")
+    public Item unclaimItem(@PathVariable Long id) {
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Item not found"));
+        
+        if (item.getStatus() == ItemStatus.CLAIMED) {
+            item.setStatus(ItemStatus.OPEN);
+            item.setClaimedBy(null);
+            item.setClaimedAt(null);
+            
+            Item updatedItem = itemRepository.save(item);
+            searchService.indexItem(updatedItem); // Sync to ES
+            return updatedItem;
+        }
+        return item;
+    }
+
+    @PutMapping("/{id}/unresolve")
+    public Item unresolveItem(@PathVariable Long id) {
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Item not found"));
+        
+        if (item.getStatus() == ItemStatus.RESOLVED) {
+            item.setStatus(ItemStatus.CLAIMED);
+            
+            Item updatedItem = itemRepository.save(item);
+            searchService.indexItem(updatedItem); // Sync to ES
+            return updatedItem;
+        }
+        return item;
+    }
+
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable Long id) {
         itemRepository.deleteById(id);
