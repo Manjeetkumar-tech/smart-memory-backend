@@ -34,10 +34,10 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
             builder.usingSsl();
         }
 
-        // CRITICAL: Disable compatibility headers for Bonsai (ES 7)
+        // CRITICAL: Enable compatibility mode for Bonsai (ES 7)
         return builder.withHeaders(() -> {
             org.springframework.data.elasticsearch.support.HttpHeaders headers = new org.springframework.data.elasticsearch.support.HttpHeaders();
-            headers.add("Content-Type", "application/json");
+            headers.add("Content-Type", "application/vnd.elasticsearch+json; compatible-with=7");
             return headers;
         }).build();
     }
