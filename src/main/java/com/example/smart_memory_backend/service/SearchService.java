@@ -1,45 +1,29 @@
 package com.example.smart_memory_backend.service;
 
 import com.example.smart_memory_backend.model.Item;
-import com.example.smart_memory_backend.model.ItemDocument;
-import com.example.smart_memory_backend.repository.ItemSearchRepository;
+import com.example.smart_memory_backend.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SearchService {
 
     @Autowired
-    private ItemSearchRepository itemSearchRepository;
+    private ItemRepository itemRepository;
 
+    // No-op for compatibility or simple removal. Since we use DB triggers, we don't need manual indexing.
     public void indexItem(Item item) {
-        try {
-            ItemDocument doc = new ItemDocument();
-            doc.setId(item.getId());
-            doc.setTitle(item.getTitle());
-            doc.setDescription(item.getDescription());
-            doc.setCategory(item.getCategory());
-            itemSearchRepository.save(doc);
-            System.out.println("Indexed item to Elasticsearch: " + item.getId());
-        } catch (Exception e) {
-            System.out.println("Error indexing item to Elasticsearch: " + e.getMessage());
-        }
+        // No operation needed for PostgreSQL full-text search with triggers
     }
 
     public void deleteItem(Long id) {
-        try {
-            itemSearchRepository.deleteById(id);
-            System.out.println("Deleted item from Elasticsearch: " + id);
-        } catch (Exception e) {
-            System.out.println("Item not found in Elasticsearch or error deleting: " + e.getMessage());
-        }
+        // No operation needed
     }
 
-    public List<ItemDocument> searchItems(String query) {
-        // Fuzzy search on title and description using custom @Query
-        return itemSearchRepository.fuzzySearch(query);
+    public List<Item> searchItems(String query) {
+        // Use native PostgreSQL full-text search
+        return itemRepository.search(query);
     }
 }

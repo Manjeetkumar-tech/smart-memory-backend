@@ -35,21 +35,8 @@ public class ItemController {
             @RequestParam(required = false) String search) {
         
         if (search != null && !search.isEmpty()) {
-            // Use Elasticsearch for search
-            List<com.example.smart_memory_backend.model.ItemDocument> docs = searchService.searchItems(search);
-            // Convert back to Item objects (simplified for now, ideally return DTOs)
-            return docs.stream().map(doc -> {
-                Item item = new Item();
-                item.setId(doc.getId());
-                item.setTitle(doc.getTitle());
-                item.setDescription(doc.getDescription());
-                item.setCategory(doc.getCategory());
-                item.setLocation(doc.getLocation());
-                item.setDate(doc.getDate());
-                item.setStatus(com.example.smart_memory_backend.model.ItemStatus.valueOf(doc.getStatus()));
-                item.setType(com.example.smart_memory_backend.model.ItemType.valueOf(doc.getType()));
-                return item;
-            }).toList();
+            // Use PostgreSQL Full-Text Search
+            return searchService.searchItems(search);
         }
 
         if (userId != null && type != null) {
@@ -69,7 +56,7 @@ public class ItemController {
     @PostMapping
     public Item createItem(@RequestBody Item item) {
         Item savedItem = itemRepository.save(item);
-        searchService.indexItem(savedItem); // Sync to ES
+        // searchService.indexItem(savedItem); // Not needed with DB Triggers
         return savedItem;
     }
 
@@ -96,7 +83,7 @@ public class ItemController {
         item.setCategory(itemDetails.getCategory());
         
         Item updatedItem = itemRepository.save(item);
-        searchService.indexItem(updatedItem); // Sync to ES
+        // searchService.indexItem(updatedItem); // Not needed with DB Triggers
         return updatedItem;
     }
 
@@ -110,7 +97,7 @@ public class ItemController {
         item.setStatus(ItemStatus.CLAIMED);
         
         Item updatedItem = itemRepository.save(item);
-        searchService.indexItem(updatedItem); // Sync to ES
+        // searchService.indexItem(updatedItem); // Not needed with DB Triggers
         return updatedItem;
     }
 
@@ -121,7 +108,7 @@ public class ItemController {
         item.setStatus(ItemStatus.RESOLVED);
         
         Item updatedItem = itemRepository.save(item);
-        searchService.indexItem(updatedItem); // Sync to ES
+        // searchService.indexItem(updatedItem); // Not needed with DB Triggers
         return updatedItem;
     }
 
@@ -136,7 +123,7 @@ public class ItemController {
             item.setClaimedAt(null);
             
             Item updatedItem = itemRepository.save(item);
-            searchService.indexItem(updatedItem); // Sync to ES
+            // searchService.indexItem(updatedItem); // Not needed with DB Triggers
             return updatedItem;
         }
         return item;
@@ -151,7 +138,7 @@ public class ItemController {
             item.setStatus(ItemStatus.CLAIMED);
             
             Item updatedItem = itemRepository.save(item);
-            searchService.indexItem(updatedItem); // Sync to ES
+            // searchService.indexItem(updatedItem); // Not needed with DB Triggers
             return updatedItem;
         }
         return item;
@@ -160,6 +147,6 @@ public class ItemController {
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable Long id) {
         itemRepository.deleteById(id);
-        searchService.deleteItem(id); // Sync to ES
+        // searchService.deleteItem(id); // Not needed with DB Triggers
     }
 }

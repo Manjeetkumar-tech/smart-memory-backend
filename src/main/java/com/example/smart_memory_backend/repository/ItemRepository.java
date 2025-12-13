@@ -9,6 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
+
+    @Query(value = "SELECT * FROM item WHERE to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ plainto_tsquery(:q)", nativeQuery = true)
+    List<Item> search(@Param("q") String query);
     List<Item> findByType(ItemType type);
 
     List<Item> findByUserId(String userId);
