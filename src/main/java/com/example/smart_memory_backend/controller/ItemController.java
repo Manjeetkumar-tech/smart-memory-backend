@@ -41,11 +41,11 @@ public class ItemController {
 
         if (userId != null && type != null) {
             return itemRepository.findAll().stream()
-                .filter(item -> item.getUserId().equals(userId) && item.getType() == type)
+                .filter(item -> item.getUserId() != null && item.getUserId().equals(userId) && item.getType() == type)
                 .toList();
         } else if (userId != null) {
             return itemRepository.findAll().stream()
-                .filter(item -> item.getUserId().equals(userId))
+                .filter(item -> item.getUserId() != null && item.getUserId().equals(userId))
                 .toList();
         } else if (type != null) {
             return itemRepository.findByType(type);
