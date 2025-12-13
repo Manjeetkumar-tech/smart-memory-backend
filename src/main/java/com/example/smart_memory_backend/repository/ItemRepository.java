@@ -10,7 +10,12 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query(value = "SELECT * FROM item WHERE to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ plainto_tsquery(:q)", nativeQuery = true)
+    // Combine Full-Text Search (stemming) AND Fuzzy Search (trigrams)
+    @Query(value = "SELECT * FROM item WHERE " +
+            "to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ plainto_tsquery(:q) " +
+            "OR similarity(title, :q) > 0.1 " +
+            "OR similarity(description, :q) > 0.1", 
+            nativeQuery = true)
     List<Item> search(@Param("q") String query);
     List<Item> findByType(ItemType type);
 
